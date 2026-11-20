@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#121211">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Half Coach">
   <title>Half Marathon Coach</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
@@ -16,14 +17,19 @@
         <p class="eyebrow" id="weekLabel">Half marathon plan</p>
         <h1 id="greeting">Today</h1>
       </div>
-      <div class="countdown"><span id="daysLeft">–</span><small>days to race</small><small class="goal" id="goalLabel"></small></div>
+      <div class="countdown">
+        <span id="daysLeft">–</span>
+        <small>days to race</small>
+        <small class="goal" id="goalLabel"></small>
+      </div>
     </header>
 
     <div id="banner" class="banner" hidden></div>
 
-    <section class="card today" id="todayCard">
-      <div class="recovery" id="recovery">
-        <div class="ring" id="ring"><span id="ringValue">–</span><small>recovery</small></div>
+    <!-- Today -->
+    <section class="card today">
+      <div class="recovery">
+        <div class="ring" id="ring"><span id="ringValue">–</span><small id="ringLabel">recovery</small></div>
         <dl class="stats">
           <div><dt>HRV</dt><dd id="hrv">–</dd></div>
           <div><dt>Resting HR</dt><dd id="rhr">–</dd></div>
@@ -31,29 +37,61 @@
           <div><dt>Yesterday's strain</dt><dd id="strain">–</dd></div>
         </dl>
       </div>
-      <div class="workout">
-        <p class="eyebrow">Today's workout</p>
-        <h2 id="todayTitle">–</h2>
-        <p class="planned" id="todayPlanned" hidden></p>
-        <p class="detail" id="todayDetail"></p>
-        <p class="paces" id="todayPaces" hidden></p>
+
+      <p class="eyebrow">Today's workout</p>
+      <span class="zone-tag" id="zoneTag" hidden></span>
+      <h2 id="todayTitle">–</h2>
+      <p class="planned" id="todayPlanned" hidden></p>
+      <p class="detail" id="todayDetail"></p>
+
+      <div class="targets" id="todayTargets" hidden>
+        <p class="eyebrow">Target</p>
+        <dl id="todayTargetList"></dl>
       </div>
+
+      <div class="log-row" id="todayLog">
+        <label class="cb big"><input type="checkbox" id="todayDone"><span></span><b id="todayDoneLabel">Mark as done</b></label>
+        <button type="button" class="ghost" id="todayLogBtn">Log time</button>
+      </div>
+      <p class="summary" id="todaySummary"></p>
     </section>
 
+    <!-- Week -->
     <section class="card">
       <div class="card-head">
         <h3>This week</h3>
-        <span class="muted" id="weekMiles"></span>
+        <span class="muted small" id="weekMiles"></span>
       </div>
       <ol class="week" id="week"></ol>
+      <p class="hint">Check off runs you tracked on Strava. Tap a day to log time and distance.</p>
     </section>
 
+    <!-- Goals -->
+    <section class="card">
+      <div class="card-head">
+        <h3>Goals &amp; paces</h3>
+        <button type="button" class="link" id="editGoal">Edit</button>
+      </div>
+      <div class="goal-hero" id="goalHero"></div>
+      <form id="paceForm" class="pace-form" hidden>
+        <label>Goal half marathon time <input name="goal" inputmode="numeric" placeholder="1:44:30"></label>
+        <label>Recent 5K time (optional) <input name="fiveK" inputmode="numeric" placeholder="23:30"></label>
+        <p class="muted small">Leave the 5K blank to train at goal paces. Add one to train from current fitness.</p>
+        <button type="submit">Save</button>
+      </form>
+      <p class="eyebrow section">Race goals</p>
+      <table class="table" id="raceGoals"></table>
+      <p class="eyebrow section">Training paces</p>
+      <table class="table" id="paceTable"></table>
+    </section>
+
+    <!-- Charts -->
     <section class="card viz-root">
       <div class="card-head">
         <h3>Weekly running miles</h3>
         <div class="legend">
           <span><i class="sw planned"></i>Planned</span>
-          <span><i class="sw actual"></i>Logged on WHOOP</span>
+          <span><i class="sw actual"></i>Logged</span>
         </div>
       </div>
       <div class="chart" id="milesChart"></div>
@@ -64,9 +102,9 @@
       <div class="card-head">
         <h3>Recovery, last 14 days</h3>
         <div class="legend">
-          <span><i class="sw g"></i>67+ green</span>
-          <span><i class="sw y"></i>34–66 yellow</span>
-          <span><i class="sw r"></i>0–33 red</span>
+          <span><i class="sw g"></i>67+</span>
+          <span><i class="sw y"></i>34–66</span>
+          <span><i class="sw r"></i>0–33</span>
         </div>
       </div>
       <div class="chart" id="recoveryChart"></div>
@@ -80,30 +118,45 @@
       </details>
     </section>
 
-    <section class="card">
-      <details id="settings">
-        <summary><h3>Paces &amp; settings</h3></summary>
-        <form id="paceForm" class="pace-form">
-          <label>Recent 5K time <input name="fiveK" inputmode="numeric" placeholder="24:30"></label>
-          <label>Goal half marathon time <input name="goal" inputmode="numeric" placeholder="1:44:30"></label>
-          <button type="submit">Save</button>
-        </form>
-        <div id="paceTable"></div>
-        <p class="muted small">Enter either one. Training paces are estimated from it with the Riegel formula.</p>
-        <p class="small"><a href="/api/logout" id="logout" hidden>Disconnect WHOOP</a></p>
-      </details>
-    </section>
-
-    <footer class="muted small">Recovery adjustments are general guidance. If something hurts, rest.</footer>
+    <footer class="muted small">
+      Recovery adjustments are general guidance. If something hurts, rest.<br>
+      <a href="/api/logout" id="logout" hidden>Disconnect WHOOP</a>
+    </footer>
   </main>
 
-  <dialog id="dayDialog">
-    <form method="dialog">
-      <p class="eyebrow" id="dlgDate"></p>
-      <h2 id="dlgTitle"></h2>
-      <p id="dlgBody"></p>
-      <ul id="dlgLogged"></ul>
-      <button>Close</button>
+  <!-- Log sheet -->
+  <dialog id="logDialog" class="sheet">
+    <form id="logForm" autocomplete="off">
+      <p class="eyebrow" id="logDate"></p>
+      <h2 id="logTitle"></h2>
+      <p class="muted small" id="logRecovery" hidden></p>
+
+      <div class="targets" id="logTargets" hidden>
+        <p class="eyebrow">Target</p>
+        <dl id="logTargetList"></dl>
+      </div>
+
+      <div class="whoop-box" id="logWhoop" hidden>
+        <p class="eyebrow">From WHOOP</p>
+        <ul id="logWhoopList"></ul>
+        <button type="button" class="ghost small-btn" id="useWhoop">Use WHOOP numbers</button>
+      </div>
+
+      <label class="cb big"><input type="checkbox" name="done"><span></span><b>Completed</b></label>
+
+      <div class="fields">
+        <label id="distField">Distance (mi)<input name="miles" type="number" step="0.01" min="0" inputmode="decimal"></label>
+        <label><span id="timeLabel">Total time</span><input name="time" inputmode="numeric" placeholder="mm:ss"></label>
+        <label id="repField" hidden><span id="repLabel">Avg rep</span><input name="rep" inputmode="numeric" placeholder="m:ss"></label>
+      </div>
+      <p class="live" id="livePace"></p>
+      <label class="note">Notes<input name="note" placeholder="How it felt, shoes, weather…"></label>
+
+      <div class="sheet-actions">
+        <button type="button" class="ghost" id="logClear">Clear</button>
+        <button type="button" class="ghost" id="logClose">Cancel</button>
+        <button type="submit" id="logSave">Save</button>
+      </div>
     </form>
   </dialog>
 

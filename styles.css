@@ -122,3 +122,82 @@ dialog { background: var(--surface-1); color: var(--text-primary); border: 1px s
 dialog::backdrop { background: rgba(0, 0, 0, 0.6); }
 dialog ul { padding-left: 18px; color: var(--text-secondary); font-size: 14px; }
 footer { text-align: center; margin-top: 20px; }
+
+/* ---------- v2: targets, logging, goals ---------- */
+.zone-tag[hidden] { display: none; }
+.targets { margin-top: 14px; background: var(--surface-2); border-radius: 12px; padding: 12px 14px; }
+.targets .eyebrow { margin-bottom: 6px; }
+.targets dl { margin: 0; display: grid; gap: 6px; }
+.targets dl div { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; }
+.targets dt { color: var(--text-secondary); }
+.targets dd { margin: 0; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+
+.log-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+.log-row[hidden] { display: none; }
+.summary { margin: 10px 0 0; font-size: 14px; color: var(--text-secondary); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.summary:empty { display: none; }
+
+button.ghost { background: transparent; color: var(--text-primary); border: 1px solid var(--line); margin-top: 0; }
+button.link { background: none; border: 0; color: var(--series-1); padding: 0; margin: 0; font-weight: 600; font-size: 14px; }
+.small-btn { padding: 8px 12px; font-size: 13px; }
+
+/* Checkbox */
+.cb { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; position: relative; }
+.cb input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.cb span { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--text-muted); display: grid; place-content: center; flex: none; transition: background .15s, border-color .15s; }
+.cb input:checked + span { background: var(--series-1); border-color: var(--series-1); }
+.cb input:checked + span::after { content: "✓"; color: #fff; font-size: 15px; font-weight: 700; line-height: 1; }
+.cb input:focus-visible + span { outline: 2px solid var(--series-1); outline-offset: 2px; }
+.cb.big span { width: 28px; height: 28px; border-radius: 8px; }
+.cb b { font-weight: 600; }
+
+/* Week rows with checkbox */
+.week li { grid-template-columns: 28px 40px 1fr auto; }
+.cb-spacer { width: 24px; }
+.week li.done .w { color: var(--text-secondary); }
+.week li.missed .status { color: var(--warning); }
+.week .status em { display: block; font-style: normal; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
+.hint { margin: 10px 0 0; font-size: 12px; color: var(--text-muted); }
+
+/* Chips */
+.chip { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--surface-2); color: var(--text-primary); border: 1px solid var(--line); }
+.chip.on { border-color: var(--good); }
+.chip.fast { border-color: var(--series-1); }
+.chip.slow { border-color: var(--warning); }
+
+/* Goals */
+.goal-hero { padding: 4px 0 8px; }
+.hero-num { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.eyebrow.section { margin-top: 16px; }
+.table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.table td, .table th { padding: 8px 0; border-top: 1px solid var(--line); text-align: left; font-variant-numeric: tabular-nums; }
+.table tr:first-child td, .table tr:first-child th { border-top: 0; }
+.table th { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
+.table td:not(:first-child), .table th:not(:first-child) { text-align: right; }
+.table td small { color: var(--text-muted); font-size: 11px; margin-left: 4px; }
+#raceGoals td:last-child .chip { margin-left: 4px; }
+.pace-form[hidden] { display: none; }
+
+/* Plan list */
+.plan-week li { cursor: pointer; }
+.plan-week li.done { color: var(--text-primary); }
+.tick { color: var(--series-1); }
+
+/* Log sheet */
+dialog.sheet { margin: auto auto 0; width: 100%; max-width: 560px; max-height: 92vh; border-radius: 20px 20px 0 0; border: 0; padding: 20px 18px calc(18px + env(safe-area-inset-bottom)); overflow-y: auto; }
+dialog.sheet h2 { margin-bottom: 4px; }
+dialog.sheet .targets, .whoop-box { margin: 14px 0; }
+.whoop-box { background: var(--surface-2); border-radius: 12px; padding: 12px 14px; }
+.whoop-box ul { margin: 0 0 8px; padding-left: 18px; font-size: 14px; color: var(--text-secondary); }
+.whoop-box[hidden] { display: none; }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.fields label, .note { display: grid; gap: 4px; font-size: 13px; color: var(--text-muted); }
+.fields label[hidden] { display: none; }
+.fields input, .note input { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; color: var(--text-primary); padding: 11px 12px; font-size: 17px; width: 100%; font-variant-numeric: tabular-nums; }
+.note { margin-top: 10px; }
+.note input { font-size: 15px; }
+.live { min-height: 1.4em; margin: 10px 0 0; font-size: 14px; color: var(--text-secondary); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.sheet-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+.sheet-actions button { margin-top: 0; }
+.sheet-actions #logClear { margin-right: auto; }
+footer a { display: inline-block; margin-top: 8px; }

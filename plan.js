@@ -18,7 +18,13 @@ export const RACE_DATE = '2027-02-14';
 export const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const cross = (min) => ({ type: 'cross', min, title: `Cross training ${min} min` });
-const interval = (reps, rep, pace, title) => ({ type: 'interval', reps, rep, pace, title: title || `${reps} x ${rep} (${pace} pace) / 200m jog` });
+// sets: [{ n: reps, m: meters, pace: 'fiveK' | 'mile' | 'half' }]
+const PACE_KEY = { '5K': 'fiveK', mile: 'mile', 'goal half marathon': 'half' };
+const interval = (reps, rep, pace, title, sets) => ({
+  type: 'interval', reps, rep, pace,
+  title: title || `${reps} x ${rep} (${pace} pace) / 200m jog`,
+  sets: sets || [{ n: reps, m: parseInt(rep, 10), pace: PACE_KEY[pace] }],
+});
 const easy = (miles) => ({ type: 'easy', miles, title: `Distance run ${miles} mi` });
 const rest = () => ({ type: 'rest', title: 'Rest day' });
 const tempo = (text, minutes) => ({ type: 'tempo', text, minutes, title: text });
@@ -33,9 +39,9 @@ export const PLAN = [
   // Week 3
   [cross(40), interval(6, '1000m', '5K'), easy(4), rest(), tempo('3 x 7 min (tempo pace) / 90s recovery', 21), optional(), long(6)],
   // Week 4
-  [cross(45), interval(5, '1600m + 4 x 800m', '5K', '1600m + 4 x 800m (5K pace) / 200m jog'), easy(4), rest(), tempo('20 min tempo', 20), optional(), long(7)],
+  [cross(45), interval(5, '1600m + 4 x 800m', '5K', '1600m + 4 x 800m (5K pace) / 200m jog', [{ n: 1, m: 1600, pace: 'fiveK' }, { n: 4, m: 800, pace: 'fiveK' }]), easy(4), rest(), tempo('20 min tempo', 20), optional(), long(7)],
   // Week 5
-  [cross(45), interval(8, '800m / 400m', '5K & mile', '4 x 800m (5K pace) + 4 x 400m (mile pace) / 200m jog'), easy(4), rest(), tempo('25 min tempo', 25), optional(), long(6, 'final 2 at target pace')],
+  [cross(45), interval(8, '800m / 400m', '5K & mile', '4 x 800m (5K pace) + 4 x 400m (mile pace) / 200m jog', [{ n: 4, m: 800, pace: 'fiveK' }, { n: 4, m: 400, pace: 'mile' }]), easy(4), rest(), tempo('25 min tempo', 25), optional(), long(6, 'final 2 at target pace')],
   // Week 6
   [cross(45), interval(6, '1000m', '5K'), easy(5), rest(), tempo('30 min tempo', 30), optional(), long(8)],
   // Week 7

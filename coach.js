@@ -42,9 +42,12 @@ export function daysToRace(date) {
 const riegel = (t1, d1, d2) => t1 * Math.pow(d2 / d1, 1.06);
 const MILE = 1609.34;
 
+// Accepts "36:12", "1:44:30", or digits only from a phone keypad ("3612" -> 36:12, "14430" -> 1:44:30).
 export function parseTime(str) {
   if (!str) return null;
-  const parts = String(str).trim().split(':').map(Number);
+  let t = String(str).trim();
+  if (/^\d{3,6}$/.test(t)) t = t.padStart(t.length > 4 ? 6 : 4, '0').match(/\d{2}/g).join(':');
+  const parts = t.split(':').map(Number);
   if (parts.some((n) => Number.isNaN(n))) return null;
   return parts.reduce((acc, n) => acc * 60 + n, 0) || null;
 }
@@ -164,4 +167,78 @@ export function adjust(workout, score, opts = {}) {
     default:
       return { ...plan, detail: 'Low recovery: rest well today.' };
   }
+}
+
+// ---------- Targets & comparisons ----------
+const PACE_NAME = { fiveK: '5K', mile: 'Mile', half: 'Goal', tenK: '10K', tempo: 'Tempo' };
+const METERS_PER_MILE = 1609.34;
+
+// What "on target" means for a workout, given training paces.
+// Returns { pace: {low, high} sec/mi | null, lines: [{label, value}], goalTime: sec | null }
+export function targetFor(workout, p) {
+  if (!p) return { pace: null, lines: [], goalTime: null };
+  const easy = { low: p.easyLow, high: p.easyHigh };
+  const range = (r) => (r.low === r.high ? fmtPace(r.low) : `${fmtPace(r.low).replace('/mi', '')}–${fmtPace(r.high)}`);
+  const timeRange = (miles, r) => `${fmtTime(miles * r.low)}–${fmtTime(miles * r.high)}`;
+  const at = (sec) => ({ low: sec - 5, high: sec + 5 });
+
+  switch (workout.type) {
+    case 'easy':
+    case 'optional':
+      return { pace: easy, goalTime: null, lines: [{ label: 'Pace', value: range(easy) }, { label: 'Time', value: timeRange(workout.miles, easy) }] };
+    case 'long': {
+      if (workout.note) {
+        const easyMiles = workout.miles - 2;
+        return {
+          pace: easy,
+          goalTime: null,
+          lines: [
+            { label: `First ${easyMiles} mi`, value: range(easy) },
+            { label: 'Last 2 mi', value: fmtPace(p.half) },
+          ],
+        };
+      }
+      return { pace: easy, goalTime: null, lines: [{ label: 'Pace', value: range(easy) }, { label: 'Time', value: timeRange(workout.miles, easy) }] };
+    }
+    case 'shakeout':
+      return workout.miles
+        ? { pace: easy, goalTime: null, lines: [{ label: 'Pace', value: range(easy) }, { label: 'Time', value: timeRange(workout.miles, easy) }] }
+        : { pace: easy, goalTime: null, lines: [{ label: 'Pace', value: range(easy) }, { label: 'Strides', value: '4 x 75m, quick & relaxed' }] };
+    case 'interval': {
+      const lines = workout.sets.map((s) => {
+        const sec = p[s.pace] * (s.m / METERS_PER_MILE);
+        return { label: `${s.n} x ${s.m}m`, value: `${fmtTime(sec)} each (${PACE_NAME[s.pace]} ${fmtPace(p[s.pace])})` };
+      });
+      const main = workout.sets[0].pace;
+      return { pace: at(p[main]), goalTime: null, lines, perRep: true };
+    }
+    case 'tempo':
+      return {
+        pace: at(p.tempo),
+        goalTime: null,
+        lines: [{ label: 'Tempo pace', value: fmtPace(p.tempo) }, { label: 'Distance', value: `~${(workout.minutes * 60 / p.tempo).toFixed(1)} mi at tempo` }],
+      };
+    case 'trial': {
+      const goal = p.tenK * 6.2137;
+      return { pace: at(p.tenK), goalTime: goal, lines: [{ label: 'Goal', value: fmtTime(goal) }, { label: 'Pace', value: fmtPace(p.tenK) }] };
+    }
+    case 'race':
+      return { pace: at(p.half), goalTime: p.halfTime, lines: [{ label: 'Goal', value: fmtTime(p.halfTime) }, { label: 'Pace', value: fmtPace(p.half) }] };
+    default:
+      return { pace: null, lines: [], goalTime: null };
+  }
+}
+
+// Compare an actual pace (sec/mi) to a target range. Returns { status, text }.
+export function comparePace(actual, target) {
+  if (!actual || !target) return null;
+  if (actual < target.low) {
+    const d = Math.round(target.low - actual);
+    return { status: 'fast', text: `${d}s/mi faster than target` };
+  }
+  if (actual > target.high) {
+    const d = Math.round(actual - target.high);
+    return { status: 'slow', text: `${d}s/mi slower than target` };
+  }
+  return { status: 'on', text: 'On target' };
 }
