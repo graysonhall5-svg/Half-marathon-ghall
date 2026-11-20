@@ -74,6 +74,7 @@ export function paces(fiveK, goalHalf) {
     halfTime: half,
     mile: milePace,
     fiveK: fiveKPace,
+    tenK: tenKPace,
     tempo: (tenKPace + halfPace) / 2,
     half: halfPace,
     easyLow: halfPace + 60,

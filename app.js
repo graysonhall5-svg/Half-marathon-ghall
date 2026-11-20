@@ -51,8 +51,14 @@ function sleepFor(key) { return data?.sleep.find((s) => localKey(s.end) === key)
 function workoutsOn(key) { return data?.workouts.filter((w) => localKey(w.start) === key) || []; }
 function lastCompletedCycle() { return data?.cycles.find((c) => c.end) || null; }
 
+// Goal: sub-1:45 half. 1:44:30 (7:58/mi) leaves a small buffer for GPS drift.
+const DEFAULT_GOAL = '1:44:30';
+function savedPaces() {
+  const s = store.get('paces');
+  return s && (s.fiveK || s.goal) ? s : { fiveK: '', goal: DEFAULT_GOAL };
+}
 function userPaces() {
-  const s = store.get('paces') || {};
+  const s = savedPaces();
   return paces(parseTime(s.fiveK), parseTime(s.goal));
 }
 
@@ -70,7 +76,7 @@ function paceLine(workout, p) {
     case 'tempo': return `Tempo pace ${fmtPace(p.tempo)}`;
     case 'long': return workout.note ? `Easy ${easy}, last 2 at ${fmtPace(p.half)}` : `Easy ${easy}`;
     case 'race': return `Goal pace ${fmtPace(p.half)} (${fmtTime(p.halfTime)})`;
-    case 'trial': return `Aim around ${fmtPace(p.fiveK + 15)}`;
+    case 'trial': return `10K pace ${fmtPace(p.tenK)} (${fmtTime(p.tenK * 6.2137)})`;
     case 'easy': case 'optional': case 'shakeout': return `Easy ${easy}`;
     default: return '';
   }
@@ -82,6 +88,8 @@ function render() {
   const left = daysToRace(today);
   $('daysLeft').textContent = Math.max(0, left);
   if (data?.name) $('greeting').textContent = `Hey ${data.name}`;
+  const p = userPaces();
+  if (p) $('goalLabel').textContent = `Goal ${fmtTime(p.halfTime)} · ${fmtPace(p.half)}`;
 
   renderRecovery();
 
@@ -298,7 +306,7 @@ function renderFullPlan(currentWeek) {
 }
 
 function renderPaces() {
-  const s = store.get('paces') || {};
+  const s = savedPaces();
   const form = $('paceForm');
   form.fiveK.value = s.fiveK || '';
   form.goal.value = s.goal || '';
@@ -307,7 +315,8 @@ function renderPaces() {
     <tr><td>Easy / long runs</td><td>${fmtPace(p.easyLow)}–${fmtPace(p.easyHigh)}</td></tr>
     <tr><td>Tempo</td><td>${fmtPace(p.tempo)}</td></tr>
     <tr><td>Goal half pace</td><td>${fmtPace(p.half)} (${fmtTime(p.halfTime)})</td></tr>
-    <tr><td>5K pace</td><td>${fmtPace(p.fiveK)}</td></tr>
+    <tr><td>10K pace</td><td>${fmtPace(p.tenK)} (${fmtTime(p.tenK * 6.2137)})</td></tr>
+    <tr><td>5K pace</td><td>${fmtPace(p.fiveK)} (${fmtTime(p.fiveK * 3.1069)})</td></tr>
     <tr><td>Mile pace</td><td>${fmtPace(p.mile)}</td></tr>
   </table>` : '';
 }
