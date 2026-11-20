@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#121211">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Half Marathon Coach</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main id="app">
+    <header class="top">
+      <div>
+        <p class="eyebrow" id="weekLabel">Half marathon plan</p>
+        <h1 id="greeting">Today</h1>
+      </div>
+      <div class="countdown"><span id="daysLeft">–</span><small>days to race</small></div>
+    </header>
+
+    <div id="banner" class="banner" hidden></div>
+
+    <section class="card today" id="todayCard">
+      <div class="recovery" id="recovery">
+        <div class="ring" id="ring"><span id="ringValue">–</span><small>recovery</small></div>
+        <dl class="stats">
+          <div><dt>HRV</dt><dd id="hrv">–</dd></div>
+          <div><dt>Resting HR</dt><dd id="rhr">–</dd></div>
+          <div><dt>Sleep</dt><dd id="sleep">–</dd></div>
+          <div><dt>Yesterday's strain</dt><dd id="strain">–</dd></div>
+        </dl>
+      </div>
+      <div class="workout">
+        <p class="eyebrow">Today's workout</p>
+        <h2 id="todayTitle">–</h2>
+        <p class="planned" id="todayPlanned" hidden></p>
+        <p class="detail" id="todayDetail"></p>
+        <p class="paces" id="todayPaces" hidden></p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h3>This week</h3>
+        <span class="muted" id="weekMiles"></span>
+      </div>
+      <ol class="week" id="week"></ol>
+    </section>
+
+    <section class="card viz-root">
+      <div class="card-head">
+        <h3>Weekly running miles</h3>
+        <div class="legend">
+          <span><i class="sw planned"></i>Planned</span>
+          <span><i class="sw actual"></i>Logged on WHOOP</span>
+        </div>
+      </div>
+      <div class="chart" id="milesChart"></div>
+      <p class="tip" id="milesTip">Tap a bar for details.</p>
+    </section>
+
+    <section class="card viz-root">
+      <div class="card-head">
+        <h3>Recovery, last 14 days</h3>
+        <div class="legend">
+          <span><i class="sw g"></i>67+ green</span>
+          <span><i class="sw y"></i>34–66 yellow</span>
+          <span><i class="sw r"></i>0–33 red</span>
+        </div>
+      </div>
+      <div class="chart" id="recoveryChart"></div>
+      <p class="tip" id="recoveryTip">Tap a bar for details.</p>
+    </section>
+
+    <section class="card">
+      <details>
+        <summary><h3>Full 13-week plan</h3></summary>
+        <div id="fullPlan"></div>
+      </details>
+    </section>
+
+    <section class="card">
+      <details id="settings">
+        <summary><h3>Paces &amp; settings</h3></summary>
+        <form id="paceForm" class="pace-form">
+          <label>Recent 5K time <input name="fiveK" inputmode="numeric" placeholder="24:30"></label>
+          <label>Goal half marathon time <input name="goal" inputmode="numeric" placeholder="1:55:00"></label>
+          <button type="submit">Save</button>
+        </form>
+        <div id="paceTable"></div>
+        <p class="muted small">Enter either one. Training paces are estimated from it with the Riegel formula.</p>
+        <p class="small"><a href="/api/logout" id="logout" hidden>Disconnect WHOOP</a></p>
+      </details>
+    </section>
+
+    <footer class="muted small">Recovery adjustments are general guidance. If something hurts, rest.</footer>
+  </main>
+
+  <dialog id="dayDialog">
+    <form method="dialog">
+      <p class="eyebrow" id="dlgDate"></p>
+      <h2 id="dlgTitle"></h2>
+      <p id="dlgBody"></p>
+      <ul id="dlgLogged"></ul>
+      <button>Close</button>
+    </form>
+  </dialog>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

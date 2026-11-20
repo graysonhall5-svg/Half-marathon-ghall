@@ -1,0 +1,9 @@
+{
+  "name": "half-marathon-coach",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Half marathon training plan that adjusts each day's workout using WHOOP recovery.",
+  "engines": { "node": ">=20" },
+  "scripts": { "test": "node --test test/*.test.js" }
+}
